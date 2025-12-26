@@ -11,7 +11,7 @@ struct CollisionEnter
     core::EntityId entity2;
 
     util::CollisionAxis axis;
-    float overlapPixels;
+    float overlap;
 };
 
 }

@@ -1,10 +1,8 @@
 #include "SimpleEngine2D/systems/Collision.hpp"
-#include "SimpleEngine2D/components/Transform.hpp"
-#include "SimpleEngine2D/components/Collider.hpp"
 
 namespace simpleengine2d::systems {
 
-void Collision::update(float dt) {
+void Collision::fixedUpdate(float f_dt) {
     auto allEntities = em.getAllEntities();
     int iteration = 0;
     for (int i = 0; i < allEntities.size(); i++) {
@@ -19,47 +17,61 @@ void Collision::update(float dt) {
                     components::TransformComponent *t1 = em.getComponent<components::TransformComponent>(entity);
                     components::TransformComponent *t2 = em.getComponent<components::TransformComponent>(other);
                     CollisionKey key = createCollisionKey(entity, other);
-                    auto it = history.find(key);
 
-                    if (t1->position.x < t2->position.x + t2->scale.x &&
-                        t1->position.x + t1->scale.x > t2->position.x &&
-                        t1->position.y < t2->position.y + t2->scale.y &&
-                        t1->position.y + t1->scale.y > t2->position.y) {
+                    if (isColliding(t1, t2)) {
 
-                        if (it == history.end()) {
-                            events::CollisionEnter ce;
+                        float overlapLeft = (t1->position.x + t1->scale.x) - t2->position.x;
+                        float overlapRight = (t2->position.x + t2->scale.x) - t1->position.x;
+                        float overlapX = std::min(overlapLeft, overlapRight);
 
-                            float overlapLeft = (t1->position.x + t1->scale.x) - t2->position.x;
-                            float overlapRight = (t2->position.x + t2->scale.x) - t1->position.x;
-                            float overlapX = std::min(overlapLeft, overlapRight);
+                        float overlapTop = (t1->position.y + t1->scale.y) - t2->position.y;
+                        float overlapBottom = (t2->position.y + t2->scale.y) - t1->position.y;
+                        float overlapY = std::min(overlapTop, overlapBottom);
+                        util::CollisionAxis axis;
+                        float overlapPixels;
 
-                            float overlapTop = (t1->position.y + t1->scale.y) - t2->position.y;
-                            float overlapBottom = (t2->position.y + t2->scale.y) - t1->position.y;
-                            float overlapY = std::min(overlapTop, overlapBottom);
-
-                            if (overlapX < overlapY) {
-                                history[key] = simpleengine2d::util::CollisionAxis::X;
-                                if (overlapLeft < overlapRight) {
-                                    ce = {entity, other, simpleengine2d::util::CollisionAxis::X, overlapX};
-                                } else {
-                                    ce = {entity, other, simpleengine2d::util::CollisionAxis::X, -overlapX};
-                                }
+                        if (overlapX < overlapY) {
+                            axis = util::CollisionAxis::X;
+                            if (overlapLeft < overlapRight) {
+                                overlapPixels = overlapX;
                             } else {
-                                history[key] = simpleengine2d::util::CollisionAxis::Y;
-                                if (overlapTop < overlapBottom) {
-                                    ce = {entity, other, simpleengine2d::util::CollisionAxis::Y, overlapY};
-                                } else {
-                                    ce = {entity, other, simpleengine2d::util::CollisionAxis::Y, -overlapY};
-                                }
+                                overlapPixels = -overlapX;
                             }
-                            core::EventBus::getInstance().publish<events::CollisionEnter>(&ce);
+                        } else {
+                            axis = util::CollisionAxis::Y;
+                            if (overlapTop < overlapBottom) {
+                                overlapPixels = overlapY;
+                            } else {
+                                overlapPixels = -overlapY;
+                            }
                         }
-                    } else {
-                        if (it != history.end()) {
-                            events::CollisionExit ce{entity, other, it->second};
-                            history.erase(key);
-                            core::EventBus::getInstance().publish<events::CollisionExit>(&ce);
+
+                        if (em.hasComponent<components::TransformComponent>(entity) && em.hasComponent<components::RigidBodyComponent>(entity)) {
+                            components::TransformComponent *transform = em.getComponent<components::TransformComponent>(entity);
+                            components::RigidBodyComponent *rb = em.getComponent<components::RigidBodyComponent>(entity);
+                            
+                            if (axis == util::CollisionAxis::X) {
+                                transform->position.x -= overlapPixels;
+                                rb->velocity.x = 0;
+                            } else {
+                                transform->position.y -= overlapPixels;
+                                rb->velocity.y = 0;
+                            }
                         }
+
+                        if (em.hasComponent<components::TransformComponent>(other) && em.hasComponent<components::RigidBodyComponent>(other)) {
+                            components::TransformComponent *transform = em.getComponent<components::TransformComponent>(other);
+                            components::RigidBodyComponent *rb = em.getComponent<components::RigidBodyComponent>(other);
+                            
+                            if (axis == util::CollisionAxis::X) {
+                                transform->position.x -= overlapPixels;
+                                rb->velocity.x = 0;
+                            } else {
+                                transform->position.y -= overlapPixels;
+                                rb->velocity.y = 0;
+                            }
+                        }
+
                     }
                 }
             }
@@ -74,6 +86,13 @@ CollisionKey Collision::createCollisionKey(core::EntityId a, core::EntityId b) {
     }
 
     return (uint64_t(a) << 32) | uint64_t(b);
+}
+
+bool Collision::isColliding(components::TransformComponent *t1, components::TransformComponent *t2) {
+    return t1->position.x < t2->position.x + t2->scale.x &&
+        t1->position.x + t1->scale.x > t2->position.x &&
+        t1->position.y < t2->position.y + t2->scale.y &&
+        t1->position.y + t1->scale.y > t2->position.y;
 }
 
 }

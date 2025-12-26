@@ -32,12 +32,13 @@ private:
     bool running = false;
     SDL_Window *window;
 
-    systems::Input *inputSystem;
-    systems::Render *renderSystem;
     std::vector<System*> systems;
 
     float dt = 0.0f;
     std::chrono::steady_clock::time_point lastFrameTime;
+
+    float acc = 0.0f;
+    const float FIXED_UPDATE_DELAY = 0.02f;
 
     void clean();
 };

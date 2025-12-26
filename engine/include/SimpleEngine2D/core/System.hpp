@@ -12,6 +12,7 @@ public:
 
     virtual void init() = 0;
     virtual void update(float dt) = 0;
+    virtual void fixedUpdate(float f_dt) {};
     virtual void clean() = 0;
 
 };

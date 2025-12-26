@@ -44,15 +44,25 @@ int main(int argc, char *argv[]) {
     transform3->position = {500, 800};
     transform3->scale = {1000, 200};
     auto *mesh3 = new simpleengine2d::components::MeshComponent();
+    mesh3->imagePath = (char *)"./games/test-game/assets/textures/achiles.bmp";
     auto *collider3 = new simpleengine2d::components::ColliderComponent();
     em.addComponent<simpleengine2d::components::TransformComponent>(floor, transform3);
     em.addComponent<simpleengine2d::components::MeshComponent>(floor, mesh3);
     em.addComponent<simpleengine2d::components::ColliderComponent>(floor, collider3);
 
-    simpleengine2d::core::System *movementSystem = new test_game::systems::MovementSystem(player);
-    engine->addSystem(movementSystem);
-    
+    simpleengine2d::core::EntityId wall = em.createEntity();
+    auto *wt = new simpleengine2d::components::TransformComponent();
+    wt->position = {1700, 0};
+    wt->scale = {100, 1000};
+    auto *wm = new simpleengine2d::components::MeshComponent();
+    wm->imagePath = (char *)"./games/test-game/assets/textures/malir.bmp";
+    auto *wc = new simpleengine2d::components::ColliderComponent();
+    em.addComponent<simpleengine2d::components::TransformComponent>(wall, wt);
+    em.addComponent<simpleengine2d::components::MeshComponent>(wall, wm);
+    em.addComponent<simpleengine2d::components::ColliderComponent>(wall, wc);
 
+    engine->addSystem(new test_game::systems::MovementSystem(player));
+    
     engine->run();
 
     return 0;
