@@ -6,6 +6,9 @@
 #include "SimpleEngine2D/core/EventBus.hpp"
 #include "SimpleEngine2D/events/InputBegan.hpp"
 #include "SimpleEngine2D/events/InputEnded.hpp"
+#include "SimpleEngine2D/events/MouseMotion.hpp"
+#include "SimpleEngine2D/events/MouseButtonDown.hpp"
+#include "SimpleEngine2D/events/MouseButtonUp.hpp"
 
 namespace simpleengine2d::systems {
 
@@ -20,8 +23,8 @@ public:
 
 private:
     SDL_Event event;
-    std::map<SDL_Keycode, bool> keyStatesDown;
 
+    core::EventBus &eb = core::EventBus::getInstance();
     bool &running;
 
 };

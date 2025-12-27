@@ -1,7 +1,4 @@
 #include "SimpleEngine2D/systems/Render.hpp"
-#include "SimpleEngine2D/components/Camera.hpp"
-#include "SimpleEngine2D/components/Mesh.hpp"
-#include "SimpleEngine2D/components/Transform.hpp"
 
 namespace simpleengine2d::systems {
 
@@ -52,12 +49,24 @@ void Render::update(float dt) {
                 }
             }
 
-            mesh->rect = {(int)(transform->position.x - camComp->position.x), (int)(transform->position.y - camComp->position.y), (int)(transform->scale.x * camComp->zoom), (int)(transform->scale.y * camComp->zoom)};
+            mesh->rect = {(int)(transform->position.x - camComp->position.x), (int)(transform->position.y - camComp->position.y), (int)transform->scale.x, (int)transform->scale.y};
             if (mesh->texture != nullptr) {
-                SDL_RenderCopy(renderer, mesh->texture, nullptr, &mesh->rect);
+                SDL_Point center = {mesh->rect.w/2, mesh->rect.h/2};
+                SDL_RenderCopyEx(renderer, mesh->texture, nullptr, &mesh->rect, transform->rotation, &center, SDL_FLIP_NONE);
             } else {
                 SDL_SetRenderDrawColor(renderer, mesh->color.r, mesh->color.g, mesh->color.b, mesh->color.a);
                 SDL_RenderFillRect(renderer, &mesh->rect);
+            }
+        }
+
+        if (em.hasComponent<components::TransformComponent>(entity) && em.hasComponent<components::ColliderComponent>(entity)) {
+            components::TransformComponent *transform = em.getComponent<components::TransformComponent>(entity);
+            components::ColliderComponent *collider = em.getComponent<components::ColliderComponent>(entity);
+
+            if (collider->showOutline) {
+                collider->rect = {(int)(transform->position.x - camComp->position.x), (int)(transform->position.y - camComp->position.y), (int)transform->scale.x, (int)transform->scale.y};
+                SDL_SetRenderDrawColor(renderer, collider->color.r, collider->color.g, collider->color.b, collider->color.a);
+                SDL_RenderDrawRect(renderer, &collider->rect);
             }
         }
     }

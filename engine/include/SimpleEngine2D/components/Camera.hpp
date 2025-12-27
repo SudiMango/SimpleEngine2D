@@ -7,7 +7,6 @@ namespace simpleengine2d::components {
 
 struct Camera {
     glm::vec2 position = glm::vec2(0.0f);
-    float zoom = 1.0f;
 
     core::EntityId follow = -1;
     glm::vec2 followOffset = glm::vec2(0.0f);

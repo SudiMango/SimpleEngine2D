@@ -11,7 +11,6 @@
 #include "SimpleEngine2D/components/Transform.hpp"
 #include "SimpleEngine2D/components/RigidBody.hpp"
 #include "SimpleEngine2D/components/Collider.hpp"
-#include "SimpleEngine2D/util/CollisionAxis.hpp"
 
 using CollisionKey = uint64_t;
 
@@ -31,7 +30,6 @@ public:
 private:
     core::EntityManager &em = core::EntityManager::getInstance();
 
-    CollisionKey createCollisionKey(core::EntityId a, core::EntityId b);
     bool isColliding(components::TransformComponent *t1, components::TransformComponent *t2);
 };
 

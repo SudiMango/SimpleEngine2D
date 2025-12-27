@@ -9,7 +9,7 @@ void Physics::fixedUpdate(float f_dt) {
             components::RigidBodyComponent *rb = em.getComponent<components::RigidBodyComponent>(entity);
             
             if (rb->useGravity) {
-                rb->velocity.y += 1000.0f * f_dt;
+                rb->velocity.y += 98.0f;
             }
 
             auto it_x = canGoX.find(entity);

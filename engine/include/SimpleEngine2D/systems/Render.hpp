@@ -5,6 +5,10 @@
 #include <glm/glm.hpp>
 #include "SimpleEngine2D/core/System.hpp"
 #include "SimpleEngine2D/core/EntityManager.hpp"
+#include "SimpleEngine2D/components/Camera.hpp"
+#include "SimpleEngine2D/components/Mesh.hpp"
+#include "SimpleEngine2D/components/Transform.hpp"
+#include "SimpleEngine2D/components/Collider.hpp"
 
 namespace simpleengine2d::systems {
 

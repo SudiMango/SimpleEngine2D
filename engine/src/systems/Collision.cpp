@@ -16,7 +16,6 @@ void Collision::fixedUpdate(float f_dt) {
 
                     components::TransformComponent *t1 = em.getComponent<components::TransformComponent>(entity);
                     components::TransformComponent *t2 = em.getComponent<components::TransformComponent>(other);
-                    CollisionKey key = createCollisionKey(entity, other);
 
                     if (isColliding(t1, t2)) {
 
@@ -27,18 +26,18 @@ void Collision::fixedUpdate(float f_dt) {
                         float overlapTop = (t1->position.y + t1->scale.y) - t2->position.y;
                         float overlapBottom = (t2->position.y + t2->scale.y) - t1->position.y;
                         float overlapY = std::min(overlapTop, overlapBottom);
-                        util::CollisionAxis axis;
+                        events::CollisionAxis axis;
                         float overlapPixels;
 
                         if (overlapX < overlapY) {
-                            axis = util::CollisionAxis::X;
+                            axis = events::CollisionAxis::X;
                             if (overlapLeft < overlapRight) {
                                 overlapPixels = overlapX;
                             } else {
                                 overlapPixels = -overlapX;
                             }
                         } else {
-                            axis = util::CollisionAxis::Y;
+                            axis = events::CollisionAxis::Y;
                             if (overlapTop < overlapBottom) {
                                 overlapPixels = overlapY;
                             } else {
@@ -50,7 +49,7 @@ void Collision::fixedUpdate(float f_dt) {
                             components::TransformComponent *transform = em.getComponent<components::TransformComponent>(entity);
                             components::RigidBodyComponent *rb = em.getComponent<components::RigidBodyComponent>(entity);
                             
-                            if (axis == util::CollisionAxis::X) {
+                            if (axis == events::CollisionAxis::X) {
                                 transform->position.x -= overlapPixels;
                                 rb->velocity.x = 0;
                             } else {
@@ -63,7 +62,7 @@ void Collision::fixedUpdate(float f_dt) {
                             components::TransformComponent *transform = em.getComponent<components::TransformComponent>(other);
                             components::RigidBodyComponent *rb = em.getComponent<components::RigidBodyComponent>(other);
                             
-                            if (axis == util::CollisionAxis::X) {
+                            if (axis == events::CollisionAxis::X) {
                                 transform->position.x -= overlapPixels;
                                 rb->velocity.x = 0;
                             } else {
@@ -72,20 +71,18 @@ void Collision::fixedUpdate(float f_dt) {
                             }
                         }
 
+                        events::CollisionEnter ce;
+                        ce.entity1 = entity;
+                        ce.entity2 = other;
+                        ce.axis = axis;
+                        core::EventBus::getInstance().publish<events::CollisionEnter>(&ce);
+
                     }
                 }
             }
         }
         iteration++;
     }
-}
-
-CollisionKey Collision::createCollisionKey(core::EntityId a, core::EntityId b) {
-    if (a > b) {
-        std::swap(a, b);
-    }
-
-    return (uint64_t(a) << 32) | uint64_t(b);
 }
 
 bool Collision::isColliding(components::TransformComponent *t1, components::TransformComponent *t2) {

@@ -16,19 +16,20 @@ namespace simpleengine2d::core {
 class Engine {
 
 public:
-    Engine() = default;
-    ~Engine() = default;
+    static Engine &getInstance();
     
     void init(const char* title, int width, int height, bool fullscreen);
     void run();
 
     void addSystem(System *system);
 
-    EntityManager &getEntityManager() {
-        return EntityManager::getInstance();
-    }
-
 private:
+    Engine() = default;
+    ~Engine() = default;
+
+    Engine(const Engine&) = delete;
+    Engine& operator=(const Engine&) = delete;
+
     bool running = false;
     SDL_Window *window;
 
@@ -39,6 +40,8 @@ private:
 
     float acc = 0.0f;
     const float FIXED_UPDATE_DELAY = 0.02f;
+
+    EntityManager &em = EntityManager::getInstance();
 
     void clean();
 };
