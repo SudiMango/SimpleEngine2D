@@ -9,6 +9,7 @@
 #include "SimpleEngine2D/components/Mesh.hpp"
 #include "SimpleEngine2D/components/Transform.hpp"
 #include "SimpleEngine2D/components/Collider.hpp"
+#include "SimpleEngine2D/components/Weld.hpp"
 
 namespace simpleengine2d::systems {
 

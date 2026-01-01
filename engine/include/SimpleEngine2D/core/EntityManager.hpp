@@ -13,6 +13,7 @@ using EntityId = uint32_t;
 struct ComponentData {
     std::type_index type;
     void *component;
+    void (*deleter)(void*);
 };
 
 class EntityManager {
@@ -26,7 +27,12 @@ public:
 
     template<typename T>
     void addComponent(EntityId id, T *component) {
-        ComponentData data = {typeid(T), static_cast<void*>(component)};
+        ComponentData data = {
+            typeid(T),
+            static_cast<void*>(component),
+            [](void* p) { delete static_cast<T*>(p); }
+        };
+
         entityToComponents[id].push_back(data);
     }
 
@@ -34,10 +40,11 @@ public:
     void removeComponent(EntityId id) {
         auto it = entityToComponents.find(id);
         if (it != entityToComponents.end()) {
-            std::vector<ComponentData> components = entityToComponents[id];
-            for (int i = 0; i < components.size(); i++) {
-                if (components.at(i).type == typeid(T)) {
-                    components.erase(components.begin() + i);
+            auto &components = it->second;
+            for (auto cit = components.begin(); cit != components.end(); ++cit) {
+                if (cit->type == typeid(T)) {
+                    cit->deleter(cit->component);
+                    components.erase(cit);
                     break;
                 }
             }

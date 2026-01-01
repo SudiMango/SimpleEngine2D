@@ -23,8 +23,12 @@ void Engine::init(const char* title, int width, int height, bool isFullscreen) {
     components::Camera *cam = new components::Camera{};
     cam->position = {0, 0};
     cam->follow = 1;
-    running = true;
+    cam->shouldLerp = true;
+    cam->smoothingFactor = 4;
+    cam->followOffset = {100, -200};
     em.addComponent<components::Camera>(camera, cam);
+
+    running = true;
 
     lastFrameTime = std::chrono::steady_clock::now();
     std::cout << "Engine initialized!" << std::endl;

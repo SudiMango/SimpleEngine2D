@@ -21,7 +21,15 @@ EntityId EntityManager::createEntity() {
 void EntityManager::deleteEntity(EntityId id) {
     auto it = entityToComponents.find(id);
     if (it != entityToComponents.end()) {
-        // TODO: clean up
+        for (auto &cdata : it->second) {
+            cdata.deleter(cdata.component);
+        }
+        entityToComponents.erase(it);
+    }
+
+    auto e_it = std::find(entities.begin(), entities.end(), id);
+    if (e_it != entities.end()) {
+        entities.erase(e_it);
     }
 }
 

@@ -11,6 +11,9 @@ struct MeshComponent {
     
     char *imagePath = nullptr;
     SDL_Texture *texture;
+
+    bool flipX = false;
+    bool flipY = false;
 };
 
 }
