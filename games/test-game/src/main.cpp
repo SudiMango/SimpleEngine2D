@@ -1,69 +1,108 @@
-#include "SimpleEngine2D/core/Engine.hpp"
-#include "SimpleEngine2D/components/Transform.hpp"
-#include "SimpleEngine2D/components/Mesh.hpp"
-#include "SimpleEngine2D/components/RigidBody.hpp"
-#include "SimpleEngine2D/components/Collider.hpp"
-#include "systems/MovementSystem.hpp"
+#include <SimpleEngine2D/core/Engine.hpp>
+#include "SimpleEngine2D/core/System.hpp"
+#include "SimpleEngine2D/core/TagManager.hpp"
+#include "systems/TopDownMovementSystem.hpp"
+#include "systems/TopDownLookingSystem.hpp"
+#include "systems/GunSystem.hpp"
+
+using namespace simpleengine2d;
 
 int main(int argc, char *argv[]) {
 
-    auto *engine = new simpleengine2d::core::Engine();
-    engine->init("Engine", 1920, 1088, false);
+    core::Engine &engine = core::Engine::getInstance();
+    engine.init("Engine", 1920, 1088, false);
 
     // add logic here
-    auto &em = engine->getEntityManager();
+    core::EntityManager &em = core::EntityManager::getInstance();
 
-    simpleengine2d::core::EntityId player = em.createEntity();
-    auto *transform = new simpleengine2d::components::TransformComponent();
+    // Create player
+    core::EntityId player = em.createEntity();
+    components::TransformComponent *transform = new components::TransformComponent();
     transform->position = {(1920/2) - 100, (1088/2) - 100};
     transform->scale = {200, 200};
-    auto *mesh = new simpleengine2d::components::MeshComponent();
+    transform->anchor = {(int)(transform->scale.x/2), (int)(transform->scale.y/2)};
+    // transform->anchor = {0, 0};
+    components::MeshComponent *mesh = new components::MeshComponent();
     mesh->imagePath = (char *)"./games/test-game/assets/textures/raeed.bmp";
-    auto *rb = new simpleengine2d::components::RigidBodyComponent();
+    components::RigidBodyComponent *rb = new components::RigidBodyComponent();
     rb->maxVelocity = 500;
     rb->useGravity = false;
-    auto *collider = new simpleengine2d::components::ColliderComponent();
-    em.addComponent<simpleengine2d::components::TransformComponent>(player, transform);
-    em.addComponent<simpleengine2d::components::MeshComponent>(player, mesh);
-    em.addComponent<simpleengine2d::components::RigidBodyComponent>(player, rb);
-    em.addComponent<simpleengine2d::components::ColliderComponent>(player, collider);
+    components::ColliderComponent *collider = new components::ColliderComponent();
+    collider->showOutline = true;
+    collider->encompassTransform = true;
+    em.addComponent<components::TransformComponent>(player, transform);
+    em.addComponent<components::MeshComponent>(player, mesh);
+    em.addComponent<components::RigidBodyComponent>(player, rb);
+    em.addComponent<components::ColliderComponent>(player, collider);
 
-    simpleengine2d::core::EntityId block = em.createEntity();
-    auto *transform2 = new simpleengine2d::components::TransformComponent();
+    // Create weapon
+    core::EntityId pistol = em.createEntity();
+    components::TransformComponent *p_transform = new components::TransformComponent();
+    p_transform->scale = {100, 75};
+    p_transform->anchor = {(int)((p_transform->scale.x/2) - (transform->scale.x/2)), (int)(p_transform->scale.y/2)};
+    // p_transform->anchor = {(int)(p_transform->scale.x/2), (int)(p_transform->scale.y/2)};
+    // p_transform->anchor = {0, 0};
+    components::MeshComponent *p_mesh = new components::MeshComponent();
+    p_mesh->imagePath = (char*)"./games/test-game/assets/textures/pistol.bmp";
+    em.addComponent<components::TransformComponent>(pistol, p_transform);
+    em.addComponent<components::MeshComponent>(pistol, p_mesh);
+
+    // Create weld constraint
+    components::WeldComponent *weld = new components::WeldComponent();
+    components::_welddata pistolWeldData;
+    pistolWeldData.child = pistol;
+    pistolWeldData.followRotation = true;
+    pistolWeldData.positionOffset = {((transform->scale.x - p_transform->scale.x)/2) +  (transform->scale.x/2), (transform->scale.y - p_transform->scale.y)/2};
+    // pistolWeldData.positionOffset = {(transform->scale.x - p_transform->scale.x)/2, (transform->scale.y - p_transform->scale.y)/2};
+    // pistolWeldData.positionOffset = {0, 0};
+    weld->welds.push_back(pistolWeldData);
+    em.addComponent<components::WeldComponent>(player, weld);
+
+    // Environment objects
+
+    core::EntityId block = em.createEntity();
+    components::TransformComponent *transform2 = new components::TransformComponent();
     transform2->position = {500, 500};
     transform2->scale = {200, 200};
-    auto *mesh2 = new simpleengine2d::components::MeshComponent();
+    components::MeshComponent *mesh2 = new components::MeshComponent();
     mesh2->imagePath = (char *)"./games/test-game/assets/textures/sudi.bmp";
-    auto *collider2 = new simpleengine2d::components::ColliderComponent();
-    em.addComponent<simpleengine2d::components::TransformComponent>(block, transform2);
-    em.addComponent<simpleengine2d::components::MeshComponent>(block, mesh2);
-    em.addComponent<simpleengine2d::components::ColliderComponent>(block, collider2);
+    components::ColliderComponent *collider2 = new components::ColliderComponent();
+    collider2->showOutline = true;
+    em.addComponent<components::TransformComponent>(block, transform2);
+    em.addComponent<components::MeshComponent>(block, mesh2);
+    em.addComponent<components::ColliderComponent>(block, collider2);
 
-    simpleengine2d::core::EntityId floor = em.createEntity();
-    auto *transform3 = new simpleengine2d::components::TransformComponent();
+    core::EntityId floor = em.createEntity();
+    components::TransformComponent *transform3 = new components::TransformComponent();
     transform3->position = {500, 800};
     transform3->scale = {1000, 200};
-    auto *mesh3 = new simpleengine2d::components::MeshComponent();
+    components::MeshComponent *mesh3 = new components::MeshComponent();
     mesh3->imagePath = (char *)"./games/test-game/assets/textures/achiles.bmp";
-    auto *collider3 = new simpleengine2d::components::ColliderComponent();
-    em.addComponent<simpleengine2d::components::TransformComponent>(floor, transform3);
-    em.addComponent<simpleengine2d::components::MeshComponent>(floor, mesh3);
-    em.addComponent<simpleengine2d::components::ColliderComponent>(floor, collider3);
+    components::ColliderComponent *collider3 = new components::ColliderComponent();
+    em.addComponent<components::TransformComponent>(floor, transform3);
+    em.addComponent<components::MeshComponent>(floor, mesh3);
+    em.addComponent<components::ColliderComponent>(floor, collider3);
+    core::TagManager::getInstance().createTag("ground");
+    core::TagManager::getInstance().addTag(floor, "ground");
 
-    simpleengine2d::core::EntityId wall = em.createEntity();
-    auto *wt = new simpleengine2d::components::TransformComponent();
+    core::EntityId wall = em.createEntity();
+    components::TransformComponent *wt = new components::TransformComponent();
     wt->position = {1700, 0};
     wt->scale = {100, 1000};
-    auto *wm = new simpleengine2d::components::MeshComponent();
+    components::MeshComponent *wm = new components::MeshComponent();
     wm->imagePath = (char *)"./games/test-game/assets/textures/malir.bmp";
-    auto *wc = new simpleengine2d::components::ColliderComponent();
-    em.addComponent<simpleengine2d::components::TransformComponent>(wall, wt);
-    em.addComponent<simpleengine2d::components::MeshComponent>(wall, wm);
-    em.addComponent<simpleengine2d::components::ColliderComponent>(wall, wc);
+    components::ColliderComponent *wc = new components::ColliderComponent();
+    em.addComponent<components::TransformComponent>(wall, wt);
+    em.addComponent<components::MeshComponent>(wall, wm);
+    em.addComponent<components::ColliderComponent>(wall, wc);
 
-    engine->addSystem(new test_game::systems::MovementSystem(player));
+    // Add custom systems
+    engine.addSystem(new test_game::systems::TopDownMovementSystem(player));
+    engine.addSystem(new test_game::systems::TopDownLookingSystem(player));
+    engine.addSystem(new test_game::systems::GunSystem(pistol, player));
     
-    engine->run();
+
+    engine.run();
 
     return 0;
 }

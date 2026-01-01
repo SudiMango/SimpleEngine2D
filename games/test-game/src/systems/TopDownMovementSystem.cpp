@@ -1,10 +1,10 @@
-#include "systems/MovementSystem.hpp"
+#include "systems/TopDownMovementSystem.hpp"
 
 namespace test_game::systems {
 
-void MovementSystem::init() {
-    simpleengine2d::core::EventBus::getInstance().subscribe<simpleengine2d::events::InputBegan>([this](void *evt){
-        auto *_evt = static_cast<simpleengine2d::events::InputBegan*>(evt);
+void TopDownMovementSystem::init() {
+    core::EventBus::getInstance().subscribe<events::InputBegan>([this](void *evt){
+        events::InputBegan *_evt = (events::InputBegan*)evt;
 
         history[_evt->keycode] = true;
         if (_evt->keycode == SDLK_w) {
@@ -18,8 +18,8 @@ void MovementSystem::init() {
         }
     });
 
-    simpleengine2d::core::EventBus::getInstance().subscribe<simpleengine2d::events::InputEnded>([this](void *evt){
-        auto *_evt = static_cast<simpleengine2d::events::InputEnded*>(evt);
+    core::EventBus::getInstance().subscribe<events::InputEnded>([this](void *evt){
+        events::InputEnded *_evt = (events::InputEnded*)evt;
         
         history[_evt->keycode] = false;
         if (_evt->keycode == SDLK_w) {
@@ -54,11 +54,10 @@ void MovementSystem::init() {
     });
 }
 
-void MovementSystem::update(float dt) {
-    if (em.hasComponent<simpleengine2d::components::TransformComponent>(attachedEntity) &&
-        em.hasComponent<simpleengine2d::components::RigidBodyComponent>(attachedEntity)) {
-        auto *transform = em.getComponent<simpleengine2d::components::TransformComponent>(attachedEntity);
-        auto *rb = em.getComponent<simpleengine2d::components::RigidBodyComponent>(attachedEntity);
+void TopDownMovementSystem::update(float dt) {
+    if (em.hasComponent<components::TransformComponent>(attachedEntity) && em.hasComponent<components::RigidBodyComponent>(attachedEntity)) {
+        components::TransformComponent *transform = em.getComponent<components::TransformComponent>(attachedEntity);
+        components::RigidBodyComponent *rb = em.getComponent<components::RigidBodyComponent>(attachedEntity);
         
         glm::vec2 dir = inputAxis;
         if (glm::length(dir) > 0.0f) {
@@ -67,6 +66,6 @@ void MovementSystem::update(float dt) {
 
         rb->velocity = rb->maxVelocity * dir;
     }
-}
+} 
 
 }
