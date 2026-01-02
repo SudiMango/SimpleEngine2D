@@ -14,6 +14,7 @@ void Engine::init(const char* title, int width, int height, bool isFullscreen) {
     SDL_Init(SDL_INIT_EVERYTHING);
     window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, (isFullscreen) ? SDL_WINDOW_FULLSCREEN : 0);
 
+    addSystem(new simpleengine2d::systems::Audio());
     addSystem(new simpleengine2d::systems::Input(running));
     addSystem(new simpleengine2d::systems::Physics());
     addSystem(new simpleengine2d::systems::Collision());

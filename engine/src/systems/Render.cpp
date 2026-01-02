@@ -29,8 +29,9 @@ void Render::update(float dt) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    // Adjust all welded components
+    
     for (auto entity : em.getAllEntities()) {
+        // Adjust all welded components
         if (em.hasComponent<components::TransformComponent>(entity) && em.hasComponent<components::WeldComponent>(entity)) {
             components::TransformComponent *transform = em.getComponent<components::TransformComponent>(entity);
             components::WeldComponent *weld = em.getComponent<components::WeldComponent>(entity);
@@ -46,6 +47,7 @@ void Render::update(float dt) {
             }
         }
 
+        // Ensure all newly added entities have their surfaces loaded
         if (em.hasComponent<components::MeshComponent>(entity)) {
             components::MeshComponent *mesh = em.getComponent<components::MeshComponent>(entity);
 
@@ -57,6 +59,26 @@ void Render::update(float dt) {
             }
         }
     }
+
+    // Z-Indexing
+    std::vector<core::EntityId> entities = em.getAllEntities();
+    auto it = std::stable_partition(
+        entities.begin(), entities.end(),
+        [&](core::EntityId e)
+        {
+            return !em.hasComponent<components::MeshComponent>(e);
+        }
+    );
+
+    std::sort(
+        it, entities.end(),
+        [&](core::EntityId a, core::EntityId b)
+        {
+            auto* ma = em.getComponent<components::MeshComponent>(a);
+            auto* mb = em.getComponent<components::MeshComponent>(b);
+            return ma->zIndex < mb->zIndex;
+        }
+    );
 
     // Render all entities
     core::EntityId camera = em.getAllEntities()[0];

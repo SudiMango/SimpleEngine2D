@@ -14,6 +14,8 @@ struct MeshComponent {
 
     bool flipX = false;
     bool flipY = false;
+
+    int zIndex = 0;
 };
 
 }

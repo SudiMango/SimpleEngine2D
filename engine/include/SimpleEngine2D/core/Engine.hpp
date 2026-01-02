@@ -10,6 +10,7 @@
 #include "SimpleEngine2D/systems/Render.hpp"
 #include "SimpleEngine2D/systems/Collision.hpp"
 #include "SimpleEngine2D/systems/Physics.hpp"
+#include "SimpleEngine2D/systems/Audio.hpp"
 
 namespace simpleengine2d::core {
 
