@@ -12,6 +12,7 @@ void Engine::init(const char* title, int width, int height, bool isFullscreen) {
     std::cout << "Initializing engine..." << std::endl;
 
     SDL_Init(SDL_INIT_EVERYTHING);
+    TTF_Init();
     window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, (isFullscreen) ? SDL_WINDOW_FULLSCREEN : 0);
 
     addSystem(new simpleengine2d::systems::Audio());

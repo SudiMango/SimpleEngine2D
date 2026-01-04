@@ -22,7 +22,56 @@ void Render::init() {
                 mesh->texture = texture;
             }
         }
+
+        if (em.hasComponent<components::TextGuiComponent>(entity)) {
+            components::TextGuiComponent *textGui = em.getComponent<components::TextGuiComponent>(entity);
+
+            if (textGui->text != nullptr && textGui->fontPath != nullptr) {
+                TTF_Font *font = TTF_OpenFont(textGui->fontPath, textGui->textSize);
+                SDL_Surface* surface = TTF_RenderText_Solid(font, textGui->text, textGui->textColor);
+                SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+                SDL_FreeSurface(surface);
+                textGui->texture = texture;
+            }
+        }
     }
+}
+
+std::vector<core::EntityId> Render::buildRenderList() {
+    std::vector<core::EntityId> entities = em.getAllEntities();
+    auto renderBegin = std::stable_partition(
+        entities.begin(), entities.end(),
+        [&](core::EntityId e)
+        {
+            bool hasMeshComponent = em.hasComponent<components::MeshComponent>(e);
+            bool hasTextGuiComponent = em.hasComponent<components::TextGuiComponent>(e);
+            bool hasPanelGuiComponent = em.hasComponent<components::PanelGuiComponent>(e);
+
+            return !(hasMeshComponent || hasTextGuiComponent || hasPanelGuiComponent);
+        }
+    );
+
+    auto getZIndex = [&](core::EntityId e) {
+        if (em.hasComponent<components::MeshComponent>(e)) {
+            return em.getComponent<components::MeshComponent>(e)->zIndex;
+        } else if (em.hasComponent<components::TextGuiComponent>(e)) {
+            return em.getComponent<components::TextGuiComponent>(e)->zIndex;
+        } else if (em.hasComponent<components::PanelGuiComponent>(e)) {
+            return em.getComponent<components::PanelGuiComponent>(e)->zIndex;
+        }
+
+        return 0;
+    };
+
+    std::sort(
+        renderBegin, entities.end(),
+        [&](core::EntityId a, core::EntityId b)
+        {
+            return getZIndex(a) < getZIndex(b);
+        }
+    );
+
+    return entities;
 }
 
 void Render::update(float dt) {
@@ -60,30 +109,12 @@ void Render::update(float dt) {
         }
     }
 
-    // Z-Indexing
-    std::vector<core::EntityId> entities = em.getAllEntities();
-    auto it = std::stable_partition(
-        entities.begin(), entities.end(),
-        [&](core::EntityId e)
-        {
-            return !em.hasComponent<components::MeshComponent>(e);
-        }
-    );
-
-    std::sort(
-        it, entities.end(),
-        [&](core::EntityId a, core::EntityId b)
-        {
-            auto* ma = em.getComponent<components::MeshComponent>(a);
-            auto* mb = em.getComponent<components::MeshComponent>(b);
-            return ma->zIndex < mb->zIndex;
-        }
-    );
-
     // Render all entities
     core::EntityId camera = em.getAllEntities()[0];
     components::Camera *camComp = em.getComponent<components::Camera>(camera);
-    for (auto entity : em.getAllEntities()) {
+
+    std::vector<core::EntityId> entities = buildRenderList();
+    for (auto entity : entities) {
 
         if (em.hasComponent<components::TransformComponent>(entity) && em.hasComponent<components::MeshComponent>(entity)) {
             components::TransformComponent *transform = em.getComponent<components::TransformComponent>(entity);
@@ -153,6 +184,40 @@ void Render::update(float dt) {
                 SDL_SetRenderDrawColor(renderer, collider->color.r, collider->color.g, collider->color.b, collider->color.a);
                 SDL_RenderDrawRect(renderer, &collider->rect);
             }
+        }
+
+        // Render panels
+        if (em.hasComponent<components::PanelGuiComponent>(entity)) {
+            auto *panelGui = em.getComponent<components::PanelGuiComponent>(entity);
+
+            int x = (int)panelGui->position.x;
+            int y = (int)panelGui->position.y;
+            if (panelGui->inWorldSpace) {
+                x -= (int)camComp->position.x;
+                y -= (int)camComp->position.y;
+            }
+
+            panelGui->rect = {x, y, (int)panelGui->scale.x, (int)panelGui->scale.y};
+            SDL_SetRenderDrawColor(renderer, panelGui->color.r, panelGui->color.g, panelGui->color.b, panelGui->color.a);
+            SDL_RenderFillRect(renderer, &panelGui->rect);
+        }
+
+        // Render text
+        if (em.hasComponent<components::TextGuiComponent>(entity)) {
+            auto *textGui = em.getComponent<components::TextGuiComponent>(entity);
+
+            int textW = 0, textH = 0;
+            SDL_QueryTexture(textGui->texture, nullptr, nullptr, &textW, &textH);
+
+            int x = (int)textGui->position.x;
+            int y = (int)textGui->position.y;
+            if (textGui->inWorldSpace) {
+                x -= (int)camComp->position.x;
+                y -= (int)camComp->position.y;
+            }
+
+            SDL_Rect dst = { x, y, textW, textH };
+            SDL_RenderCopy(renderer, textGui->texture, nullptr, &dst);
         }
     }
 

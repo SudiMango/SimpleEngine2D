@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+#include <SDL_ttf.h>
 #include <iostream>
 #include <glm/glm.hpp>
 #include "SimpleEngine2D/core/System.hpp"
@@ -10,6 +11,8 @@
 #include "SimpleEngine2D/components/Transform.hpp"
 #include "SimpleEngine2D/components/Collider.hpp"
 #include "SimpleEngine2D/components/Weld.hpp"
+#include "SimpleEngine2D/components/TextGui.hpp"
+#include "SimpleEngine2D/components/PanelGui.hpp"
 
 namespace simpleengine2d::systems {
 
@@ -26,6 +29,7 @@ private:
     SDL_Renderer *renderer;
     core::EntityManager &em = core::EntityManager::getInstance();
 
+    std::vector<core::EntityId> buildRenderList();
 };
 
 }
