@@ -21,7 +21,7 @@ public:
 
     void init() override;
     void update(float dt) override;
-    void clean() override {};
+    void clean() override;
 
 private:
      core::EntityId attachedEntity;

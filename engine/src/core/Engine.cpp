@@ -1,50 +1,37 @@
 #include "SimpleEngine2D/core/Engine.hpp"
-#include "SimpleEngine2D/components/Camera.hpp"
 
 namespace simpleengine2d::core {
 
-Engine &Engine::getInstance() {
-    static Engine instance;
-    return instance;
-}
+/**
+ * Public functions
+ */
 
-void Engine::init(const char* title, int width, int height, bool isFullscreen) {
+void Engine::init(int sceneIndex) {
     std::cout << "Initializing engine..." << std::endl;
 
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
-    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, (isFullscreen) ? SDL_WINDOW_FULLSCREEN : 0);
+    Mix_Init(MIX_INIT_MP3);
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
+    window = SDL_CreateWindow(config.window.title, 
+                            SDL_WINDOWPOS_CENTERED, 
+                            SDL_WINDOWPOS_CENTERED, 
+                            config.window.width, 
+                            config.window.height, 
+                            (config.window.fullscreen) ? SDL_WINDOW_FULLSCREEN : 0);
 
-    //addSystem(new simpleengine2d::systems::Audio());
-    addSystem(new simpleengine2d::systems::Input(running));
-    addSystem(new simpleengine2d::systems::Physics());
-    addSystem(new simpleengine2d::systems::Collision());
-    addSystem(new simpleengine2d::systems::Render(window, -1, 0));
-
-    EntityId camera = em.createEntity();
-    components::Camera *cam = new components::Camera{};
-    // cam->position = {0, 0};
-    // cam->follow = 1;
-    // cam->shouldLerp = true;
-    // cam->smoothingFactor = 4;
-    // cam->followOffset = {100, -200};
-    em.addComponent<components::Camera>(camera, cam);
-
-    EventBus::getInstance().subscribe<events::ChangeScene>([this](void *evt){
-        this->onChangeSceneRequest(static_cast<events::ChangeScene*>(evt));
-    });
+    nextSceneIndex = sceneIndex;
+    this->setup();
 
     running = true;
-
     lastFrameTime = std::chrono::steady_clock::now();
-    std::cout << "Engine initialized!" << std::endl;
-}
+    core::EventBus::getInstance().subscribe<events::RequestSceneChange>(this, [this](void *evt){
+        if (!sceneChangeQueued) {
+            this->onChangeSceneRequest(static_cast<events::RequestSceneChange*>(evt)->sceneIndex);
+        }
+    });
 
-void Engine::onChangeSceneRequest(events::ChangeScene *cs) {
-    if (!sceneChangeQueued) {
-        nextSceneIndex = cs->sceneIndex;
-        sceneChangeQueued = true;
-    }
+    std::cout << "Engine initialized!" << std::endl;
 }
 
 void Engine::run() {
@@ -63,45 +50,61 @@ void Engine::run() {
             s->update(dt);
         }
 
-        acc += dt;
-        if (acc >= FIXED_UPDATE_DELAY) {
+        fixedUpdateAcc += dt;
+        if (fixedUpdateAcc >= FIXED_UPDATE_DELAY) {
             for (auto s : systems) {
                 s->fixedUpdate(FIXED_UPDATE_DELAY);
             }
-            acc -= FIXED_UPDATE_DELAY;
+            fixedUpdateAcc -= FIXED_UPDATE_DELAY;
         }
 
         if (sceneChangeQueued) {
-            for (auto s : systems) {
-                s->clean();
-                delete s;
-            }
-            systems.clear();
-            em.reset();
-
-            // addSystem(new AudioSystem());
-            addSystem(new simpleengine2d::systems::Input(running));
-            addSystem(new simpleengine2d::systems::Physics());
-            addSystem(new simpleengine2d::systems::Collision());
-            addSystem(new simpleengine2d::systems::Render(window, -1, 0));
-
-            EntityId camera = em.createEntity();
-            components::Camera *cam = new components::Camera{};
-            cam->position = {0, 0};
-            em.addComponent<components::Camera>(camera, cam);
-
-            SceneManager::getInstance().getScene(nextSceneIndex)->setup();
-
-            for (auto s : systems) {
-                s->init();
-            }
-
-            nextSceneIndex = -1;
-            sceneChangeQueued = false;
+            this->setup();
         }
     }
     
-    clean();
+    this->clean();
+}
+
+/**
+ * Private functions
+ */
+
+void Engine::setup() {
+    // Clear old systems
+    for (auto s : systems) {
+        s->clean();
+        delete s;
+    }
+    systems.clear();
+    em.reset();
+    TagManager::getInstance().reset();
+
+    // Re-add core systems
+    // addSystem(new AudioSystem());
+    addSystem(new systems::Input(running));
+    addSystem(new systems::Physics());
+    addSystem(new systems::Collision());
+    addSystem(new systems::Render(window, -1, 0));
+
+    // Add camera
+    EntityId camera = em.createEntity();
+    components::Camera *cam = new components::Camera{};
+    cam->position = {0, 0};
+    em.addComponent<components::Camera>(camera, cam);
+
+    // Set up next scene
+    SceneManager::getInstance().switchScene(nextSceneIndex);
+
+    // Initialize all new systems
+    for (auto s : systems) {
+        s->init();
+    }
+
+    // Cleanup
+    nextSceneIndex = -1;
+    sceneChangeQueued = false;
+    std::cout << "Changed scenes!" << std::endl;
 }
 
 void Engine::clean() {
@@ -109,12 +112,16 @@ void Engine::clean() {
         s->clean();
     }
     SDL_DestroyWindow(window);
+    TTF_Quit();
     SDL_Quit();
     std::cout << "Cleaned, exiting..." << std::endl;
 }
 
-void Engine::addSystem(System *system) {
-    systems.push_back(system);
+void Engine::onChangeSceneRequest(int index) {
+    if (!sceneChangeQueued) {
+        nextSceneIndex = index;
+        sceneChangeQueued = true;
+    }
 }
 
 }

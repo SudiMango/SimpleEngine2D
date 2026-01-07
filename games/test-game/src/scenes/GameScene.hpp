@@ -6,6 +6,9 @@
 #include "SimpleEngine2D/core/TagManager.hpp"
 #include "SimpleEngine2D/core/EventBus.hpp"
 
+#include "SimpleEngine2D/events/InputBegan.hpp"
+#include "SimpleEngine2D/events/RequestSceneChange.hpp"
+
 #include "systems/SidewaysLookingSystem.hpp"
 #include "systems/SidewaysMovementSystem.hpp"
 #include "systems/GunSystem.hpp"
@@ -18,6 +21,7 @@ class GameScene : public core::Scene {
 
 public:
     void setup() override;
+    void clean() override;
 
 private:
 

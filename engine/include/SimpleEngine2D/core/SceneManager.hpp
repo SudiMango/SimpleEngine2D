@@ -19,12 +19,14 @@ public:
         scenes.push_back(scene);
     }
 
-    void init(int index) {
-        scenes[index]->setup();
-    }
-
-    core::Scene *getScene(int index) {
-        return scenes[index];
+    void switchScene(int index) {
+        if (index >= 0 && index < scenes.size()) {
+            if (currSceneIndex != -1) {
+                scenes[currSceneIndex]->clean();
+            }
+            currSceneIndex = index;
+            scenes[index]->setup();
+        }
     }
 
 private:
@@ -35,6 +37,7 @@ private:
     SceneManager& operator=(const SceneManager&) = delete;
 
     std::vector<core::Scene*> scenes;
+    int currSceneIndex = -1;
 
 
 };

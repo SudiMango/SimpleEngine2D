@@ -25,6 +25,11 @@ void TagManager::destroyTag(std::string tagName) {
     }
 }
 
+void TagManager::reset() {
+    entityToTags.clear();
+    tags.clear();
+}
+
 /**
  * Tag management with entities
  */

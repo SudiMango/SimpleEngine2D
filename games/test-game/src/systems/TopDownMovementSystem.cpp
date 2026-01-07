@@ -3,7 +3,7 @@
 namespace test_game::systems {
 
 void TopDownMovementSystem::init() {
-    core::EventBus::getInstance().subscribe<events::InputBegan>([this](void *evt){
+    core::EventBus::getInstance().subscribe<events::InputBegan>(this, [this](void *evt){
         events::InputBegan *_evt = (events::InputBegan*)evt;
 
         history[_evt->keycode] = true;
@@ -18,7 +18,7 @@ void TopDownMovementSystem::init() {
         }
     });
 
-    core::EventBus::getInstance().subscribe<events::InputEnded>([this](void *evt){
+    core::EventBus::getInstance().subscribe<events::InputEnded>(this, [this](void *evt){
         events::InputEnded *_evt = (events::InputEnded*)evt;
         
         history[_evt->keycode] = false;
@@ -66,6 +66,10 @@ void TopDownMovementSystem::update(float dt) {
 
         rb->velocity = rb->maxVelocity * dir;
     }
-} 
+}
+
+void TopDownMovementSystem::clean() {
+    core::EventBus::getInstance().unsubscribe(this);
+}
 
 }

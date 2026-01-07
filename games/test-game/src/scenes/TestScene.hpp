@@ -8,7 +8,7 @@
 #include "SimpleEngine2D/components/Transform.hpp"
 #include "SimpleEngine2D/components/Mesh.hpp"
 #include "SimpleEngine2D/events/InputBegan.hpp"
-#include "SimpleEngine2D/events/ChangeScene.hpp"
+#include "SimpleEngine2D/events/RequestSceneChange.hpp"
 
 using namespace simpleengine2d;
 
@@ -18,9 +18,7 @@ class TestScene : public core::Scene {
 
 public:
     void setup() override;
-
-private:
-    bool spacePressed = false;
+    void clean() override;
 
 };
 

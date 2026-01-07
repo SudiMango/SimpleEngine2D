@@ -3,7 +3,7 @@
 namespace test_game::systems {
 
 void SidewaysLookingSystem::init() {
-    core::EventBus::getInstance().subscribe<events::MouseMotion>([this](void *evt) {
+    core::EventBus::getInstance().subscribe<events::MouseMotion>(this, [this](void *evt) {
         events::MouseMotion *_evt = (events::MouseMotion*)evt;
         currMousePos = _evt->position;
     });
@@ -75,6 +75,10 @@ void SidewaysLookingSystem::update(float dt) {
         }
         transform->rotation = angle;
     }
+}
+
+void SidewaysLookingSystem::clean() {
+    core::EventBus::getInstance().unsubscribe(this);
 }
 
 }

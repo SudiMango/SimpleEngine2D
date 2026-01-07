@@ -19,6 +19,8 @@ public:
     void removeTag(EntityId entity, std::string tagName);
     bool hasTag(EntityId entity, std::string tagName);
 
+    void reset();
+
 private:
     TagManager() = default;
     ~TagManager() = default;

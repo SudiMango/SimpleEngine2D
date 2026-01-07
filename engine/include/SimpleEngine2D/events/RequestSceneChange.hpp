@@ -2,7 +2,7 @@
 
 namespace simpleengine2d::events {
 
-struct ChangeScene {
+struct RequestSceneChange {
     int sceneIndex;
 };
 

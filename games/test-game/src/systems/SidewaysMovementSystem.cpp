@@ -3,7 +3,7 @@
 namespace test_game::systems {
 
 void SidewaysMovementSystem::init() {
-    core::EventBus::getInstance().subscribe<events::InputBegan>([this](void *evt){
+    core::EventBus::getInstance().subscribe<events::InputBegan>(this, [this](void *evt){
         events::InputBegan *_evt = (events::InputBegan*)evt;
 
         history[_evt->keycode] = true;
@@ -14,7 +14,7 @@ void SidewaysMovementSystem::init() {
         }
     });
 
-    core::EventBus::getInstance().subscribe<events::InputEnded>([this](void *evt){
+    core::EventBus::getInstance().subscribe<events::InputEnded>(this, [this](void *evt){
         events::InputEnded *_evt = (events::InputEnded*)evt;
         
         history[_evt->keycode] = false;
@@ -35,7 +35,7 @@ void SidewaysMovementSystem::init() {
         }
     });
 
-    core::EventBus::getInstance().subscribe<events::CollisionEnter>([this](void *evt) {
+    core::EventBus::getInstance().subscribe<events::CollisionEnter>(this, [this](void *evt) {
         events::CollisionEnter *_evt = (events::CollisionEnter*)evt;
         if (_evt->entity1 != attachedEntity && _evt->entity2 != attachedEntity) {
             return;
@@ -85,6 +85,10 @@ void SidewaysMovementSystem::update(float dt) {
             dashDir = (mesh->flipX) ? -1 : 1;
         }
     }
+}
+
+void SidewaysMovementSystem::clean() {
+    core::EventBus::getInstance().unsubscribe(this);
 }
 
 }

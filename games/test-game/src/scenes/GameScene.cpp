@@ -27,6 +27,12 @@ void GameScene::setup() {
     em.addComponent<components::RigidBodyComponent>(player, rb);
     em.addComponent<components::ColliderComponent>(player, collider);
 
+    components::Camera *cam = core::Engine::getInstance().getCamera();
+    cam->follow = 1;
+    cam->shouldLerp = true;
+    cam->smoothingFactor = 4;
+    cam->followOffset = {100, -200};
+
     // Create weapon
     core::EntityId pistol = em.createEntity();
     components::TransformComponent *p_transform = new components::TransformComponent();
@@ -109,6 +115,20 @@ void GameScene::setup() {
     core::Engine::getInstance().addSystem(new test_game::systems::SidewaysMovementSystem(player));
     core::Engine::getInstance().addSystem(new test_game::systems::SidewaysLookingSystem(player, pistol));
     core::Engine::getInstance().addSystem(new test_game::systems::GunSystem(pistol, player));
+
+    core::EventBus::getInstance().subscribe<events::InputBegan>(this, [this](void *evt) {
+        events::InputBegan *_evt = (events::InputBegan*)evt;
+
+        if (_evt->keycode == SDLK_r) {
+            std::cout << "R pressed, switching scenes..." << std::endl;
+            events::RequestSceneChange rsc{0};
+            core::EventBus::getInstance().publish<events::RequestSceneChange>(&rsc);
+        }
+    });
+}
+
+void GameScene::clean() {
+    core::EventBus::getInstance().unsubscribe(this);
 }
 
 }

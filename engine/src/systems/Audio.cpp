@@ -3,10 +3,7 @@
 namespace simpleengine2d::systems {
 
 void Audio::init() {
-    Mix_Init(MIX_INIT_MP3);
-    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
-
-    core::EventBus::getInstance().subscribe<events::PlayAudio>([this](void *evt) {
+    core::EventBus::getInstance().subscribe<events::PlayAudio>(this, [this](void *evt) {
         events::PlayAudio *_evt = (events::PlayAudio*)evt;
 
         if (_evt->audio.isMusic) {
@@ -20,7 +17,7 @@ void Audio::init() {
         }
     });
 
-    core::EventBus::getInstance().subscribe<events::ControlAudio>([this](void *evt) {
+    core::EventBus::getInstance().subscribe<events::ControlAudio>(this, [this](void *evt) {
         events::ControlAudio *_evt = (events::ControlAudio*)evt;
 
         if (_evt->isMusic) {

@@ -14,16 +14,19 @@ void TestScene::setup() {
     em.addComponent<components::TransformComponent>(block, transform2);
     em.addComponent<components::MeshComponent>(block, mesh2);
 
-    core::EventBus::getInstance().subscribe<events::InputBegan>([this](void *evt) {
+    core::EventBus::getInstance().subscribe<events::InputBegan>(this, [this](void *evt) {
         events::InputBegan *_evt = (events::InputBegan*)evt;
 
-        if (_evt->keycode == SDLK_SPACE && !spacePressed) {
-            spacePressed = true;
+        if (_evt->keycode == SDLK_SPACE) {
             std::cout << "Space pressed, switching scenes..." << std::endl;
-            events::ChangeScene changeScene{1};
-            core::EventBus::getInstance().publish<events::ChangeScene>(&changeScene);
+            events::RequestSceneChange rsc{1};
+            core::EventBus::getInstance().publish<events::RequestSceneChange>(&rsc);
         }
     });
+}
+
+void TestScene::clean() {
+    core::EventBus::getInstance().unsubscribe(this);
 }
 
 }

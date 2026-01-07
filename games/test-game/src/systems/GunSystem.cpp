@@ -3,7 +3,7 @@
 namespace test_game::systems {
 
 void GunSystem::init() {
-    core::EventBus::getInstance().subscribe<events::MouseButtonDown>([this](void *evt) {
+    core::EventBus::getInstance().subscribe<events::MouseButtonDown>(this, [this](void *evt) {
         events::MouseButtonDown *_evt = (events::MouseButtonDown*)evt;
 
         if (_evt->button == SDL_BUTTON_LEFT) {
@@ -11,7 +11,7 @@ void GunSystem::init() {
         }
     });
 
-    core::EventBus::getInstance().subscribe<events::CollisionEnter>([this](void *evt) {
+    core::EventBus::getInstance().subscribe<events::CollisionEnter>(this, [this](void *evt) {
         events::CollisionEnter *_evt = (events::CollisionEnter*)evt;
 
         auto it1 = bullets.find(_evt->entity1);
@@ -73,6 +73,10 @@ void GunSystem::update(float dt) {
 
         bullets[bullet] = 0.0f;
     }
+}
+
+void GunSystem::clean() {
+    core::EventBus::getInstance().unsubscribe(this);
 }
 
 }

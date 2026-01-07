@@ -3,7 +3,7 @@
 namespace test_game::systems {
 
 void TopDownLookingSystem::init() {
-    core::EventBus::getInstance().subscribe<events::MouseMotion>([this](void *evt) {
+    core::EventBus::getInstance().subscribe<events::MouseMotion>(this, [this](void *evt) {
         events::MouseMotion *_evt = (events::MouseMotion*)evt;
         currMousePos = _evt->position;
     });
@@ -23,6 +23,10 @@ void TopDownLookingSystem::update(float dt) {
         float angle = glm::degrees(glm::atan(dir.y, dir.x));
         transform->rotation = angle;
     }
+}
+
+void TopDownLookingSystem::clean() {
+    core::EventBus::getInstance().unsubscribe(this);
 }
 
 }
