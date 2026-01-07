@@ -24,6 +24,11 @@ public:
     EntityId createEntity();
     void deleteEntity(EntityId id);
     std::vector<EntityId> getAllEntities();
+    void reset() {
+        entities.clear();
+        entityToComponents.clear();
+        nextId = 0;
+    }
 
     template<typename T>
     void addComponent(EntityId id, T *component) {

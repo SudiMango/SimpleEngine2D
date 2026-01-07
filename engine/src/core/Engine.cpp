@@ -15,7 +15,7 @@ void Engine::init(const char* title, int width, int height, bool isFullscreen) {
     TTF_Init();
     window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, (isFullscreen) ? SDL_WINDOW_FULLSCREEN : 0);
 
-    addSystem(new simpleengine2d::systems::Audio());
+    //addSystem(new simpleengine2d::systems::Audio());
     addSystem(new simpleengine2d::systems::Input(running));
     addSystem(new simpleengine2d::systems::Physics());
     addSystem(new simpleengine2d::systems::Collision());
@@ -23,17 +23,28 @@ void Engine::init(const char* title, int width, int height, bool isFullscreen) {
 
     EntityId camera = em.createEntity();
     components::Camera *cam = new components::Camera{};
-    cam->position = {0, 0};
-    cam->follow = 1;
-    cam->shouldLerp = true;
-    cam->smoothingFactor = 4;
-    cam->followOffset = {100, -200};
+    // cam->position = {0, 0};
+    // cam->follow = 1;
+    // cam->shouldLerp = true;
+    // cam->smoothingFactor = 4;
+    // cam->followOffset = {100, -200};
     em.addComponent<components::Camera>(camera, cam);
+
+    EventBus::getInstance().subscribe<events::ChangeScene>([this](void *evt){
+        this->onChangeSceneRequest(static_cast<events::ChangeScene*>(evt));
+    });
 
     running = true;
 
     lastFrameTime = std::chrono::steady_clock::now();
     std::cout << "Engine initialized!" << std::endl;
+}
+
+void Engine::onChangeSceneRequest(events::ChangeScene *cs) {
+    if (!sceneChangeQueued) {
+        nextSceneIndex = cs->sceneIndex;
+        sceneChangeQueued = true;
+    }
 }
 
 void Engine::run() {
@@ -58,6 +69,35 @@ void Engine::run() {
                 s->fixedUpdate(FIXED_UPDATE_DELAY);
             }
             acc -= FIXED_UPDATE_DELAY;
+        }
+
+        if (sceneChangeQueued) {
+            for (auto s : systems) {
+                s->clean();
+                delete s;
+            }
+            systems.clear();
+            em.reset();
+
+            // addSystem(new AudioSystem());
+            addSystem(new simpleengine2d::systems::Input(running));
+            addSystem(new simpleengine2d::systems::Physics());
+            addSystem(new simpleengine2d::systems::Collision());
+            addSystem(new simpleengine2d::systems::Render(window, -1, 0));
+
+            EntityId camera = em.createEntity();
+            components::Camera *cam = new components::Camera{};
+            cam->position = {0, 0};
+            em.addComponent<components::Camera>(camera, cam);
+
+            SceneManager::getInstance().getScene(nextSceneIndex)->setup();
+
+            for (auto s : systems) {
+                s->init();
+            }
+
+            nextSceneIndex = -1;
+            sceneChangeQueued = false;
         }
     }
     

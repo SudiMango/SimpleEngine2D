@@ -7,11 +7,13 @@
 #include <chrono>
 #include "SimpleEngine2D/core/System.hpp"
 #include "SimpleEngine2D/core/EntityManager.hpp"
+#include "SimpleEngine2D/core/SceneManager.hpp"
 #include "SimpleEngine2D/systems/Input.hpp"
 #include "SimpleEngine2D/systems/Render.hpp"
 #include "SimpleEngine2D/systems/Collision.hpp"
 #include "SimpleEngine2D/systems/Physics.hpp"
 #include "SimpleEngine2D/systems/Audio.hpp"
+#include "SimpleEngine2D/events/ChangeScene.hpp"
 
 namespace simpleengine2d::core {
 
@@ -24,6 +26,8 @@ public:
     void run();
 
     void addSystem(System *system);
+
+    bool canSetupScene = false;
 
 private:
     Engine() = default;
@@ -44,6 +48,11 @@ private:
     const float FIXED_UPDATE_DELAY = 0.02f;
 
     EntityManager &em = EntityManager::getInstance();
+
+    bool sceneChangeQueued = false;
+    int nextSceneIndex = -1;
+
+    void onChangeSceneRequest(events::ChangeScene *cs);
 
     void clean();
 };

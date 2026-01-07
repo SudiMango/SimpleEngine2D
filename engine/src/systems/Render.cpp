@@ -31,6 +31,7 @@ void Render::init() {
                 SDL_Surface* surface = TTF_RenderText_Solid(font, textGui->text, textGui->textColor);
                 SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
                 SDL_FreeSurface(surface);
+                TTF_CloseFont(font);
                 textGui->texture = texture;
             }
         }
