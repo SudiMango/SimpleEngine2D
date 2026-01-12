@@ -12,6 +12,14 @@
 #include "systems/SidewaysLookingSystem.hpp"
 #include "systems/SidewaysMovementSystem.hpp"
 #include "systems/GunSystem.hpp"
+#include "systems/PlayerHealthSystem.hpp"
+#include "systems/EnemySystem.hpp"
+
+#include "components/HealthComponent.hpp"
+#include "components/DamageComponent.hpp"
+#include "components/EnemyComponent.hpp"
+
+#include "factories/EnemyFactory.hpp"
 
 using namespace simpleengine2d;
 

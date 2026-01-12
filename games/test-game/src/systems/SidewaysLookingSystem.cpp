@@ -18,7 +18,7 @@ void SidewaysLookingSystem::update(float dt) {
         components::TransformComponent *transform = em.getComponent<components::TransformComponent>(attachedEntity);
         components::MeshComponent *mesh = em.getComponent<components::MeshComponent>(attachedEntity);
 
-        if (currMousePos.x >= (transform->position.x + (transform->scale.x/2)) - (camComp->followOffset.x/2) && mesh->flipX == true) {
+        if (currMousePos.x + camComp->position.x >= (transform->position.x + (transform->scale.x/2)) && mesh->flipX == true) {
             mesh->flipX = false;
             camComp->followOffset.x *= -1;
             em.getComponent<components::MeshComponent>(gun)->flipY = false;
@@ -32,7 +32,17 @@ void SidewaysLookingSystem::update(float dt) {
                 }
             }
 
-        } else if (currMousePos.x < (transform->position.x + (transform->scale.x/2)) - (camComp->followOffset.x/2) && mesh->flipX == false) {
+            if (em.hasComponent<components::WeldComponent>(gun)) {
+                components::WeldComponent *weld = em.getComponent<components::WeldComponent>(gun);
+
+                for (auto &w : weld->welds) {
+                    components::TransformComponent *t1 = em.getComponent<components::TransformComponent>(w.child);
+                    t1->anchor.y += 20;
+                    w.positionOffset.y -= 20;
+                }
+            }
+
+        } else if (currMousePos.x + camComp->position.x < (transform->position.x + (transform->scale.x/2)) && mesh->flipX == false) {
             mesh->flipX = true;
             camComp->followOffset.x *= -1;
             em.getComponent<components::MeshComponent>(gun)->flipY = true;
@@ -43,6 +53,16 @@ void SidewaysLookingSystem::update(float dt) {
 
                 for (auto &w : weld->welds) {
                     w.positionOffset.x -= transform->scale.x;
+                }
+            }
+
+            if (em.hasComponent<components::WeldComponent>(gun)) {
+                components::WeldComponent *weld = em.getComponent<components::WeldComponent>(gun);
+
+                for (auto &w : weld->welds) {
+                    components::TransformComponent *t1 = em.getComponent<components::TransformComponent>(w.child);
+                    t1->anchor.y -= 20;
+                    w.positionOffset.y += 20;
                 }
             }
         }

@@ -5,15 +5,26 @@
 #include <glm/glm.hpp>
 #include <map>
 #include <vector>
+
 #include "SimpleEngine2D/core/System.hpp"
 #include "SimpleEngine2D/core/EventBus.hpp"
 #include "SimpleEngine2D/core/EntityManager.hpp"
+
 #include "SimpleEngine2D/components/Transform.hpp"
 #include "SimpleEngine2D/components/Mesh.hpp"
 #include "SimpleEngine2D/components/RigidBody.hpp"
 #include "SimpleEngine2D/components/Collider.hpp"
+#include "SimpleEngine2D/components/Weld.hpp"
+#include "SimpleEngine2D/components/TextGui.hpp"
+
 #include "SimpleEngine2D/events/MouseButtonDown.hpp"
 #include "SimpleEngine2D/events/CollisionEnter.hpp"
+
+#include "events/AddAmmo.hpp"
+
+#include "components/HealthComponent.hpp"
+#include "components/DamageComponent.hpp"
+#include "components/GunComponent.hpp"
 
 using namespace simpleengine2d;
 
@@ -34,9 +45,15 @@ private:
     core::EntityId player;
     core::EntityManager &em = core::EntityManager::getInstance();
 
+    simpleengine2d::components::TransformComponent *bulletSpawn;
     bool isFiring = false;
     std::map<core::EntityId, float> bullets;
     const float MAX_ALIVE_TIME = 5.0f;
+
+    int numBullets = 25;
+    simpleengine2d::components::TextGuiComponent *bulletText;
+
+    void createBullet();
 
 };
 

@@ -72,7 +72,7 @@ void SidewaysMovementSystem::update(float dt) {
         auto it_space = history.find(SDLK_SPACE);
         if (it_space != history.end() && it_space->second == true && isGrounded) {
             isGrounded = false;
-            rb->velocity.y -= 2000.0f;
+            rb->velocity.y -= 1500.0f;
             events::PlayAudio audio;
             audio.audio = jumpAudio;
             core::EventBus::getInstance().publish<events::PlayAudio>(&audio);
