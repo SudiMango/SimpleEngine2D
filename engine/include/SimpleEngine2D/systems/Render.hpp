@@ -4,8 +4,10 @@
 #include <SDL_ttf.h>
 #include <iostream>
 #include <glm/glm.hpp>
+#include "SimpleEngine2D/core/Engine.hpp"
 #include "SimpleEngine2D/core/System.hpp"
 #include "SimpleEngine2D/core/EntityManager.hpp"
+#include "SimpleEngine2D/core/ConfigManager.hpp"
 #include "SimpleEngine2D/components/Camera.hpp"
 #include "SimpleEngine2D/components/Mesh.hpp"
 #include "SimpleEngine2D/components/Transform.hpp"
@@ -28,8 +30,13 @@ public:
 private:
     SDL_Renderer *renderer;
     core::EntityManager &em = core::EntityManager::getInstance();
+    core::Config &config = core::ConfigManager::getInstance().getConfig();
 
     std::vector<core::EntityId> buildRenderList();
+    void renderMeshFor(core::EntityId entity, float dt);
+    void renderColliderFor(core::EntityId entity);
+    void renderGuiFor(core::EntityId entity);
+    void loadSurfaces(core::EntityId entity);
 };
 
 }

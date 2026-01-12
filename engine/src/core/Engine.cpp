@@ -35,11 +35,6 @@ void Engine::init(int sceneIndex) {
 }
 
 void Engine::run() {
-
-    for (auto s : systems) {
-        s->init();
-    }
-
     while (running) {
         
         auto currentTime = std::chrono::steady_clock::now();
@@ -81,7 +76,7 @@ void Engine::setup() {
     TagManager::getInstance().reset();
 
     // Re-add core systems
-    // addSystem(new AudioSystem());
+    addSystem(new systems::Audio());
     addSystem(new systems::Input(running));
     addSystem(new systems::Physics());
     addSystem(new systems::Collision());
@@ -111,6 +106,8 @@ void Engine::clean() {
     for (auto s : systems) {
         s->clean();
     }
+    Mix_CloseAudio();
+    Mix_Quit();
     SDL_DestroyWindow(window);
     TTF_Quit();
     SDL_Quit();

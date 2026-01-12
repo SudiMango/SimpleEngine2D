@@ -23,6 +23,7 @@ private:
     std::map<std::string, Mix_Music*> musicCache;
 
     Mix_Chunk* getOrCreateChunk(const char* path) {
+        if (path == nullptr) return nullptr;
         if (soundCache.find(path) == soundCache.end()) {
             soundCache[path] = Mix_LoadWAV(path);
         }
@@ -30,6 +31,7 @@ private:
     }
 
     Mix_Music* getOrCreateMusic(const char* path) {
+        if (path == nullptr) return nullptr;
         if (musicCache.find(path) == musicCache.end()) {
             musicCache[path] = Mix_LoadMUS(path);
         }

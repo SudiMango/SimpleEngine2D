@@ -3,7 +3,6 @@
 #include <iostream>
 #include <vector>
 #include "SimpleEngine2D/core/Scene.hpp"
-#include "SimpleEngine2D/core/Engine.hpp"
 
 namespace simpleengine2d::core {
 

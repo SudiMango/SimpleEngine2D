@@ -8,12 +8,16 @@ void Audio::init() {
 
         if (_evt->audio.isMusic) {
             Mix_Music *music = getOrCreateMusic(_evt->audio.filePath);
-            Mix_VolumeMusic(_evt->audio.volume);
-            Mix_PlayMusic(music, _evt->audio.numLoops);
+            if (music) {
+                Mix_VolumeMusic(_evt->audio.volume);
+                Mix_PlayMusic(music, _evt->audio.numLoops);
+            }
         } else {
             Mix_Chunk *sound = getOrCreateChunk(_evt->audio.filePath);
-            Mix_VolumeChunk(sound, _evt->audio.volume);
-            Mix_PlayChannel(-1, sound, _evt->audio.numLoops);
+            if (sound) {
+                Mix_VolumeChunk(sound, _evt->audio.volume);
+                Mix_PlayChannel(-1, sound, _evt->audio.numLoops);
+            }
         }
     });
 
@@ -41,6 +45,8 @@ void Audio::init() {
 }
 
 void Audio::clean() {
+    core::EventBus::getInstance().unsubscribe(this);
+
     for (auto const& [path, chunk] : soundCache) {
         Mix_FreeChunk(chunk);
     }
@@ -50,9 +56,6 @@ void Audio::clean() {
         Mix_FreeMusic(music);
     }
     musicCache.clear();
-
-    Mix_CloseAudio();
-    Mix_Quit();
 }
 
 }

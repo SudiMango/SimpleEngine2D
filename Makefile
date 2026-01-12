@@ -1,12 +1,13 @@
 BUILD_DIR := build
 NAME ?=
+TYPE ?= Debug
 
 .PHONY: all configure build create-game run clean rebuild deps
 
 all: build
 
 configure:
-	cmake -S . -B $(BUILD_DIR)
+	cmake -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=$(TYPE)
 
 build: configure
 	cmake --build $(BUILD_DIR) -j
