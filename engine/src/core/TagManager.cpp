@@ -68,4 +68,17 @@ bool TagManager::hasTag(EntityId entity, std::string tagName) {
     return false;
 }
 
+std::vector<std::string> TagManager::getAllTags() {
+    return tags;
+}
+
+std::vector<std::string> TagManager::getTags(EntityId entity) {
+    auto it = entityToTags.find(entity);
+    if (it == entityToTags.end()) {
+        return {};
+    }
+
+    return it->second;
+}
+
 }

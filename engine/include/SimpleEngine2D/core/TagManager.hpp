@@ -18,6 +18,8 @@ public:
     void addTag(EntityId entity, std::string tagName);
     void removeTag(EntityId entity, std::string tagName);
     bool hasTag(EntityId entity, std::string tagName);
+    std::vector<std::string> getAllTags();
+    std::vector<std::string> getTags(EntityId entity);
 
     void reset();
 

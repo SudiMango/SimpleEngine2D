@@ -1,1 +1,1 @@
-fedora:gcc-c++ cmake SDL2-devel SDL2_mixer-devel SDL2_ttf-devel SDL2_image-devel glm-devel
+fedora:gcc-c++ cmake SDL2-devel SDL2_mixer-devel SDL2_ttf-devel SDL2_image-devel glm-devel nlohmann-json-devel

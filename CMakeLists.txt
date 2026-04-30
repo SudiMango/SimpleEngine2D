@@ -8,6 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Add subdirectories
 add_subdirectory(engine)
+add_subdirectory(editor)
 
 # Add all game subdirectories
 file(GLOB GAME_DIRS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/games" "${CMAKE_CURRENT_SOURCE_DIR}/games/*")

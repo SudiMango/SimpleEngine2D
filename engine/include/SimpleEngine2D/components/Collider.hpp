@@ -3,6 +3,9 @@
 #include <vector>
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
+#include "SimpleEngine2D/core/EntityManager.hpp"
+#include "SimpleEngine2D/util/glm_json.hpp"
+#include "SimpleEngine2D/util/sdl_json.hpp"
 
 namespace simpleengine2d::components {
 
@@ -15,8 +18,10 @@ struct ColliderComponent {
     bool encompassTransform = false;
 
     bool isTrigger = false;
-    
+
     std::vector<core::EntityId> ignore;
 };
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ColliderComponent, rect, color, showOutline, scale, encompassTransform, isTrigger, ignore)
 
 }
