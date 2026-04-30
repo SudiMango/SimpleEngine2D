@@ -27,10 +27,12 @@ public:
     void update(float dt) override;
     void clean() override;
 
-private:
+protected:
     SDL_Renderer *renderer;
     core::EntityManager &em = core::EntityManager::getInstance();
     core::Config &config = core::ConfigManager::getInstance().getConfig();
+
+    void renderScene(float dt);
 
     std::vector<core::EntityId> buildRenderList();
     void renderMeshFor(core::EntityId entity, float dt);

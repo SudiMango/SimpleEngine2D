@@ -17,10 +17,15 @@ void Render::init() {
 }
 
 void Render::update(float dt) {
-    SDL_SetRenderDrawColor(renderer, 
-                            config.render.backgroundColor.r, 
-                            config.render.backgroundColor.g, 
-                            config.render.backgroundColor.b, 
+    renderScene(dt);
+    SDL_RenderPresent(renderer);
+}
+
+void Render::renderScene(float dt) {
+    SDL_SetRenderDrawColor(renderer,
+                            config.render.backgroundColor.r,
+                            config.render.backgroundColor.g,
+                            config.render.backgroundColor.b,
                             config.render.backgroundColor.a);
     SDL_RenderClear(renderer);
 
@@ -52,8 +57,6 @@ void Render::update(float dt) {
         renderColliderFor(entity);
         renderGuiFor(entity);
     }
-
-    SDL_RenderPresent(renderer);
 }
 
 void Render::clean() {
@@ -158,7 +161,7 @@ void Render::renderColliderFor(core::EntityId entity) {
             float angle = glm::radians(transform->rotation);
             float cosA = cos(angle);
             float sinA = sin(angle);
-            
+
             float rx = dx * cosA - dy * sinA;
             float ry = dx * sinA + dy * cosA;
 
@@ -218,25 +221,31 @@ void Render::loadSurfaces(core::EntityId entity) {
     if (em.hasComponent<components::MeshComponent>(entity)) {
         components::MeshComponent *mesh = em.getComponent<components::MeshComponent>(entity);
 
-        if (mesh->imagePath != nullptr && mesh->texture == nullptr) {
-            SDL_Surface *surface = SDL_LoadBMP(mesh->imagePath);
-            SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-            SDL_FreeSurface(surface);
-            mesh->texture = texture;
+        if (!mesh->imagePath.empty() && mesh->texture == nullptr) {
+            SDL_Surface *surface = SDL_LoadBMP(mesh->imagePath.c_str());
+            if (surface != nullptr) {
+                SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+                SDL_FreeSurface(surface);
+                mesh->texture = texture;
+            }
         }
     }
 
     if (em.hasComponent<components::TextGuiComponent>(entity)) {
         components::TextGuiComponent *textGui = em.getComponent<components::TextGuiComponent>(entity);
 
-        if (!textGui->text.empty() && textGui->fontPath != nullptr && textGui->texture == nullptr) {
-            TTF_Font *font = TTF_OpenFont(textGui->fontPath, textGui->textSize);
-            SDL_Surface* surface = TTF_RenderText_Solid(font, textGui->text.c_str(), textGui->textColor);
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-            textGui->textureScale = {surface->w, surface->h};
-            SDL_FreeSurface(surface);
-            TTF_CloseFont(font);
-            textGui->texture = texture;
+        if (!textGui->text.empty() && !textGui->fontPath.empty() && textGui->texture == nullptr) {
+            TTF_Font *font = TTF_OpenFont(textGui->fontPath.c_str(), textGui->textSize);
+            if (font != nullptr) {
+                SDL_Surface* surface = TTF_RenderText_Solid(font, textGui->text.c_str(), textGui->textColor);
+                if (surface != nullptr) {
+                    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+                    textGui->textureScale = {surface->w, surface->h};
+                    SDL_FreeSurface(surface);
+                    textGui->texture = texture;
+                }
+                TTF_CloseFont(font);
+            }
         }
     }
 }
