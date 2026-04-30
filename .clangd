@@ -1,0 +1,12 @@
+CompileFlags:
+    CompilationDatabase: build
+
+Diagnostics:
+    ClangTidy:
+        Add:
+            - bugprone-use-after-move
+            - bugprone-dangling-handle
+            - performance-unnecessary-copy-initialization
+            - performance-move-const-arg
+            - modernize-use-nullptr
+            - modernize-use-override
