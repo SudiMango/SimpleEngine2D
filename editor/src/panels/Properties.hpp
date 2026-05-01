@@ -56,18 +56,14 @@ public:
                     ImGui::PushID(name.c_str());
                     if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
                         cr.inspect(name, selectedEntity);
+                        ImGui::Spacing();
+                        ImGui::Separator();
+                        ImGui::Spacing();
+                        if (ImGui::Button("Delete component")) {
+                            cr.removeComponent(name, selectedEntity);
+                        }
                     }
                     ImGui::PopID();
-
-                    ImGui::Spacing();
-
-                    ImGui::PushID(name.c_str());
-                    if (ImGui::Button("Delete component")) {
-                        cr.removeComponent(name, selectedEntity);
-                    }
-                    ImGui::PopID();
-
-                    ImGui::Spacing();
                 }
 
                 ImGui::EndTabItem();

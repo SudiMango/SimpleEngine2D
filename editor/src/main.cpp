@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL_ttf.h>
 #include <string>
 #include <SimpleEngine2D/core/ComponentRegistry.hpp>
 #include <SimpleEngine2D/core/ConfigManager.hpp>
@@ -6,6 +7,7 @@
 #include <SimpleEngine2D/core/EntityManager.hpp>
 #include <SimpleEngine2D/core/PersistenceManager.hpp>
 #include <SimpleEngine2D/core/TagManager.hpp>
+#include "Assets.hpp"
 #include "Hierarchy.hpp"
 #include "Properties.hpp"
 #include "TopBar.hpp"
@@ -22,6 +24,9 @@ int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0) {
         return 1;
     }
+
+    TTF_Init();
+    Mix_Init(MIX_INIT_MP3);
 
     // Create window with SDL_Renderer graphics context
     float main_scale = ImGui_ImplSDL2_GetContentScaleForDisplay(0);
@@ -66,10 +71,12 @@ int main(int argc, char* argv[]) {
     simpleengine2d::editor::TopBar topbar("GameScene");
     simpleengine2d::editor::Hierarchy hierarchy(selectedEntity);
     simpleengine2d::editor::Properties properties(selectedEntity);
+    simpleengine2d::editor::Assets assets;
     viewport.init();
     topbar.init();
     hierarchy.init();
     properties.init();
+    assets.init();
 
     float scale_factor = 1.0f;
     ImGuiStyle &style = ImGui::GetStyle();
@@ -109,6 +116,7 @@ int main(int argc, char* argv[]) {
         viewport.update(dt);
         hierarchy.update(dt);
         properties.update(dt);
+        assets.update(dt);
 
         // Rendering
         ImGui::Render();
@@ -121,7 +129,12 @@ int main(int argc, char* argv[]) {
 
 
     // Cleanup
+    topbar.clean();
     viewport.clean();
+    hierarchy.clean();
+    properties.clean();
+    assets.clean();
+
     ImGui_ImplSDLRenderer2_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
