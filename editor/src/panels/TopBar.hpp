@@ -17,6 +17,16 @@ public:
     void init() override {}
 
     void update(float dt) override {
+        ImGuiIO& io = ImGui::GetIO();
+
+        if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_S) && !ImGui::IsAnyItemActive()) {
+            pm.saveScene("GameScene");
+        }
+
+        if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_O) && !ImGui::IsAnyItemActive()) {
+            pm.loadScene("GameScene");
+        }
+
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("File")) {
                 if (ImGui::MenuItem("Save", "Ctrl+S")) {

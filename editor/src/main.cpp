@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    io.FontGlobalScale = 1.66f;
+    io.FontGlobalScale = 1.0f;
 
     ImGui::StyleColorsDark();
     ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
 
     simpleengine2d::core::EntityId selectedEntity = -1;
 
-    simpleengine2d::editor::Viewport viewport(window, renderer);
+    simpleengine2d::editor::Viewport viewport(window, renderer, selectedEntity);
     simpleengine2d::editor::TopBar topbar("GameScene");
     simpleengine2d::editor::Hierarchy hierarchy(selectedEntity);
     simpleengine2d::editor::Properties properties(selectedEntity);
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
     hierarchy.init();
     properties.init();
 
-    float scale_factor = 1.66f;
+    float scale_factor = 1.0f;
     ImGuiStyle &style = ImGui::GetStyle();
     style.ScaleAllSizes(scale_factor);
 
