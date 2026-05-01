@@ -42,6 +42,7 @@ int main(int argc, char* argv[]) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.FontGlobalScale = 1.66f;
 
     ImGui::StyleColorsDark();
     ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
@@ -69,6 +70,10 @@ int main(int argc, char* argv[]) {
     topbar.init();
     hierarchy.init();
     properties.init();
+
+    float scale_factor = 1.66f;
+    ImGuiStyle &style = ImGui::GetStyle();
+    style.ScaleAllSizes(scale_factor);
 
     // Main loop
     bool done = false;

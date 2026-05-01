@@ -125,8 +125,6 @@ void Render::renderMeshFor(core::EntityId entity, float dt) {
 
         mesh->rect = {(int)(transform->position.x - camComp->position.x), (int)(transform->position.y - camComp->position.y), (int)transform->scale.x, (int)transform->scale.y};
         if (mesh->texture != nullptr) {
-            // SDL_RenderCopy(renderer, mesh->texture, nullptr, &mesh->rect);
-            // SDL_Point center = {mesh->rect.w/2, mesh->rect.h/2};
             SDL_RendererFlip flip = SDL_FLIP_NONE;
             if (mesh->flipX && mesh->flipY) {
                 flip = (SDL_RendererFlip)(SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL);
@@ -221,12 +219,13 @@ void Render::loadSurfaces(core::EntityId entity) {
     if (em.hasComponent<components::MeshComponent>(entity)) {
         components::MeshComponent *mesh = em.getComponent<components::MeshComponent>(entity);
 
-        if (!mesh->imagePath.empty() && mesh->texture == nullptr) {
+        if (!mesh->imagePath.empty() && mesh->imagePath != mesh->prevImagePath) {
             SDL_Surface *surface = SDL_LoadBMP(mesh->imagePath.c_str());
             if (surface != nullptr) {
                 SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
                 SDL_FreeSurface(surface);
                 mesh->texture = texture;
+                mesh->prevImagePath = mesh->imagePath;
             }
         }
     }

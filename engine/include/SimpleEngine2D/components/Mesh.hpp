@@ -13,6 +13,7 @@ struct MeshComponent {
     glm::ivec4 color = glm::ivec4(255, 0, 0, 255);
 
     std::string imagePath = "";
+    std::string prevImagePath = "";
     SDL_Texture *texture = nullptr;
 
     bool flipX = false;

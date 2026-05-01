@@ -19,6 +19,15 @@ void TagManager::createTag(std::string tagName) {
 }
 
 void TagManager::destroyTag(std::string tagName) {
+    // Remove tag from entities
+    for (auto &[entity, tags] : entityToTags) {
+        auto entityToTag_it = std::find(tags.begin(), tags.end(), tagName);
+        if (entityToTag_it != tags.end()) {
+            tags.erase(entityToTag_it);
+        }
+    }
+
+    // Destroy tag
     auto it = std::find(tags.begin(), tags.end(), tagName);
     if (it != tags.end()) {
         tags.erase(it);
